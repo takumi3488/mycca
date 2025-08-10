@@ -1,18 +1,18 @@
-# Claude Code with S3 Backup Action
+# Claude Code S3バックアップアクション
 
-A GitHub Action that runs [Claude Code](https://claude.ai/code) and automatically backs up your Claude projects to S3 or S3-compatible storage (like MinIO).
+[Claude Code](https://claude.ai/code)を実行し、ClaudeプロジェクトをS3またはS3互換ストレージ（MinIOなど）に自動的にバックアップするGitHub Actionです。
 
-## Features
+## 機能
 
-- ✅ Run Claude Code Action in your workflows
-- 📦 Automatically compress Claude projects
-- ☁️ Upload backups to S3 or S3-compatible storage
-- 🔗 Support for custom S3 endpoints (MinIO, etc.)
-- 📊 Include GitHub metadata with uploads
+- ✅ ワークフローでClaude Code Actionを実行
+- 📦 Claudeプロジェクトを自動圧縮
+- ☁️ S3またはS3互換ストレージにバックアップをアップロード
+- 🔗 カスタムS3エンドポイント（MinIOなど）をサポート
+- 📊 アップロード時にGitHubメタデータを含める
 
-## Usage
+## 使用方法
 
-Add this action to your GitHub workflow:
+このアクションをGitHubワークフローに追加してください：
 
 ```yaml
 - name: Run Claude Code with S3 Backup
@@ -22,48 +22,48 @@ Add this action to your GitHub workflow:
     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     s3-bucket: 'your-backup-bucket'
-    # Optional: for MinIO or other S3-compatible storage
+    # オプション：MinIOや他のS3互換ストレージの場合
     s3-endpoint-url: 'https://minio.example.com'
     s3-force-path-style: 'true'
 ```
 
-## Inputs
+## 入力パラメータ
 
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `claude-code-oauth-token` | Claude Code OAuth token | ✅ | - |
+| 入力 | 説明 | 必須 | デフォルト |
+|------|------|------|-----------|
+| `claude-code-oauth-token` | Claude Code OAuthトークン | ✅ | - |
 | `aws-access-key-id` | AWS Access Key ID | ✅ | - |
 | `aws-secret-access-key` | AWS Secret Access Key | ✅ | - |
-| `aws-region` | AWS Region (or region for S3-compatible storage) | ❌ | `us-east-1` |
-| `s3-endpoint-url` | S3 endpoint URL (for MinIO or other S3-compatible storage) | ❌ | - |
-| `s3-force-path-style` | Force path-style addressing (required for MinIO) | ❌ | `false` |
-| `s3-bucket` | S3 Bucket name | ✅ | - |
-| `additional-permissions` | Additional permissions for Claude Code | ❌ | `actions: read` |
+| `aws-region` | AWSリージョン（またはS3互換ストレージのリージョン） | ❌ | `us-east-1` |
+| `s3-endpoint-url` | S3エンドポイントURL（MinIOや他のS3互換ストレージ用） | ❌ | - |
+| `s3-force-path-style` | パススタイルアドレッシングを強制（MinIOに必要） | ❌ | `false` |
+| `s3-bucket` | S3バケット名 | ✅ | - |
+| `additional-permissions` | Claude Codeの追加権限 | ❌ | `actions: read` |
 
-## Outputs
+## 出力
 
-| Output | Description |
-|--------|-------------|
-| `s3-location` | S3 location of the uploaded backup |
-| `archive-name` | Name of the created archive file |
+| 出力 | 説明 |
+|------|------|
+| `s3-location` | アップロードされたバックアップのS3場所 |
+| `archive-name` | 作成されたアーカイブファイル名 |
 
-## Setup
+## セットアップ
 
-### 1. Required Secrets
+### 1. 必要なシークレット
 
-Add these secrets to your repository:
+リポジトリに以下のシークレットを追加してください：
 
-- `CLAUDE_CODE_OAUTH_TOKEN` - Your Claude Code OAuth token
+- `CLAUDE_CODE_OAUTH_TOKEN` - Claude Code OAuthトークン
 - `AWS_ACCESS_KEY_ID` - AWS Access Key ID
 - `AWS_SECRET_ACCESS_KEY` - AWS Secret Access Key
 
-### 2. S3 Bucket
+### 2. S3バケット
 
-Create an S3 bucket (or MinIO bucket) where backups will be stored.
+バックアップが保存されるS3バケット（またはMinIOバケット）を作成してください。
 
-### 3. AWS Permissions
+### 3. AWS権限
 
-Ensure your AWS credentials have the following permissions:
+AWS認証情報に以下の権限があることを確認してください：
 
 ```json
 {
@@ -81,9 +81,9 @@ Ensure your AWS credentials have the following permissions:
 }
 ```
 
-## Examples
+## 使用例
 
-### Basic Usage with AWS S3
+### AWS S3での基本的な使用方法
 
 ```yaml
 name: Claude Code Backup
@@ -102,7 +102,7 @@ jobs:
           s3-bucket: 'my-claude-backups'
 ```
 
-### Usage with MinIO
+### MinIOでの使用方法
 
 ```yaml
 name: Claude Code MinIO Backup
@@ -124,35 +124,35 @@ jobs:
           s3-bucket: 'claude-projects'
 ```
 
-## How It Works
+## 動作原理
 
-1. **Run Claude Code**: The action first runs the Claude Code Action
-2. **Find Projects**: Looks for Claude projects in `$HOME/.claude/projects`
-3. **Create Archive**: Compresses the projects directory into a tar.gz file
-4. **Upload to S3**: Uploads the archive to your specified S3 bucket with metadata
-5. **Cleanup**: Removes the temporary archive file
+1. **Claude Codeの実行**: アクションはまずClaude Code Actionを実行します
+2. **プロジェクトの検索**: `$HOME/.claude/projects`でClaudeプロジェクトを検索します
+3. **アーカイブの作成**: プロジェクトディレクトリをtar.gzファイルに圧縮します
+4. **S3へのアップロード**: アーカイブをメタデータと共に指定されたS3バケットにアップロードします
+5. **クリーンアップ**: 一時アーカイブファイルを削除します
 
-## Archive Naming
+## アーカイブの命名規則
 
-Archives are named using the pattern:
+アーカイブは以下のパターンで名前が付けられます：
 ```
 claude_projects_{REPO_NAME}_{RUN_ID}_{TIMESTAMP}.tar.gz
 ```
 
-Example: `claude_projects_takumi3488_mycca_1234567890_20241210_143022.tar.gz`
+例：`claude_projects_takumi3488_mycca_1234567890_20241210_143022.tar.gz`
 
-## Metadata
+## メタデータ
 
-Each uploaded archive includes GitHub metadata:
-- `github-repo`: Repository name
-- `github-run-id`: GitHub Actions run ID
-- `github-actor`: User who triggered the workflow
-- `github-event`: Event type that triggered the workflow
+アップロードされた各アーカイブには、GitHubメタデータが含まれます：
+- `github-repo`: リポジトリ名
+- `github-run-id`: GitHub Actions実行ID
+- `github-actor`: ワークフローをトリガーしたユーザー
+- `github-event`: ワークフローをトリガーしたイベントタイプ
 
-## License
+## ライセンス
 
-This project is open source and available under the MIT License.
+このプロジェクトはオープンソースで、MITライセンスの下で利用可能です。
 
-## Contributing
+## 貢献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+貢献を歓迎します！プルリクエストをお気軽に提出してください。
