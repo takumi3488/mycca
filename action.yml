@@ -12,7 +12,7 @@ inputs:
     required: true
   aws-region:
     description: 'AWS Region (or region for S3-compatible storage)'
-    required: false
+    required: true
     default: 'us-east-1'
   s3-endpoint-url:
     description: 'S3 endpoint URL (for MinIO or other S3-compatible storage)'
