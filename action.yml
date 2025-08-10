@@ -24,10 +24,6 @@ inputs:
   s3-bucket:
     description: 'S3 Bucket name'
     required: true
-  s3-key-prefix:
-    description: 'S3 key prefix for the uploaded file'
-    required: false
-    default: 'claude-projects'
   additional-permissions:
     description: 'Additional permissions for Claude Code'
     required: false
@@ -74,7 +70,7 @@ runs:
           echo "✅ Archive created: ${ARCHIVE_NAME} (${ARCHIVE_SIZE})"
           
           # Upload to S3 or S3-compatible storage
-          S3_PATH="s3://${{ inputs.s3-bucket }}/${{ inputs.s3-key-prefix }}/${ARCHIVE_NAME}"
+          S3_PATH="s3://${{ inputs.s3-bucket }}/${ARCHIVE_NAME}"
           echo "☁️ Uploading to S3-compatible storage: ${S3_PATH}"
           
           # Set S3 options for S3-compatible storage

@@ -38,4 +38,3 @@ jobs:
           s3-endpoint-url: ${{ secrets.S3_ENDPOINT_URL }}
           s3-force-path-style: ${{ secrets.S3_FORCE_PATH_STYLE }}
           s3-bucket: ${{ secrets.S3_BUCKET }}
-          s3-key-prefix: ${{ secrets.S3_KEY_PREFIX }}
