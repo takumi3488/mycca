@@ -24,6 +24,11 @@ inputs:
   s3-bucket:
     description: 'S3 Bucket name'
     required: true
+  additional-permissions:
+    description: 'Additional permissions for Claude Code'
+    required: false
+    default: |
+      actions: read
 
 runs:
   using: 'composite'
@@ -33,6 +38,7 @@ runs:
       uses: anthropics/claude-code-action@beta
       with:
         claude_code_oauth_token: ${{ inputs.claude-code-oauth-token }}
+        additional_permissions: ${{ inputs.additional-permissions }}
         model: "claude-opus-4-1-20250805"
 
     - name: Configure AWS credentials
