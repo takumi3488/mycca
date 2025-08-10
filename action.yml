@@ -4,23 +4,19 @@ inputs:
   claude-code-oauth-token:
     description: 'Claude Code OAuth token'
     required: true
-  aws-access-key-id:
-    description: 'AWS Access Key ID'
+  mc-host-alias:
+    description: 'MinIO Client host alias name'
+    required: false
+    default: 's3'
+  mc-endpoint-url:
+    description: 'S3/MinIO endpoint URL'
     required: true
-  aws-secret-access-key:
-    description: 'AWS Secret Access Key'
+  mc-access-key:
+    description: 'S3/MinIO Access Key'
     required: true
-  aws-region:
-    description: 'AWS Region (or region for S3-compatible storage)'
-    required: false
-    default: 'us-east-1'
-  s3-endpoint-url:
-    description: 'S3 endpoint URL (for MinIO or other S3-compatible storage)'
-    required: false
-  s3-force-path-style:
-    description: 'Force path-style addressing (required for MinIO and some S3-compatible storage)'
-    required: false
-    default: 'false'
+  mc-secret-key:
+    description: 'S3/MinIO Secret Key'
+    required: true
   s3-bucket:
     description: 'S3 Bucket name'
     required: true
@@ -54,12 +50,16 @@ runs:
         model: "claude-opus-4-1-20250805"
         mcp_config: ${{ inputs.mcp_config }}
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: ${{ inputs.aws-region }}
+    - name: Install and configure MinIO Client
+      shell: bash
+      run: |
+        # Download and install MinIO Client
+        curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+        chmod +x mc
+        sudo mv mc /usr/local/bin/
+        
+        # Configure MinIO Client
+        mc alias set ${{ inputs.mc-host-alias }} ${{ inputs.mc-endpoint-url }} ${{ inputs.mc-access-key }} ${{ inputs.mc-secret-key }}
 
     - name: Compress and upload Claude projects to S3
       shell: bash
@@ -83,31 +83,21 @@ runs:
           ARCHIVE_SIZE=$(du -h "$TEMP_ARCHIVE" | cut -f1)
           echo "✅ Archive created: ${ARCHIVE_NAME} (${ARCHIVE_SIZE})"
           
-          # Upload to S3 or S3-compatible storage
-          S3_PATH="s3://${{ inputs.s3-bucket }}/${ARCHIVE_NAME}"
-          echo "☁️ Uploading to S3-compatible storage: ${S3_PATH}"
+          # Upload to S3 or S3-compatible storage using MinIO Client
+          MC_PATH="${{ inputs.mc-host-alias }}/${{ inputs.s3-bucket }}/${ARCHIVE_NAME}"
+          echo "☁️ Uploading to S3-compatible storage: ${MC_PATH}"
+          echo "🔗 Using endpoint: ${{ inputs.mc-endpoint-url }}"
           
-          # Set S3 options for S3-compatible storage
-          S3_ARGS=""
-          if [ -n "${{ inputs.s3-endpoint-url }}" ]; then
-            S3_ARGS="$S3_ARGS --endpoint-url ${{ inputs.s3-endpoint-url }}"
-            echo "🔗 Using custom endpoint: ${{ inputs.s3-endpoint-url }}"
-          fi
-          
-          if [ "${{ inputs.s3-force-path-style }}" = "true" ]; then
-            export AWS_S3_ADDRESSING_STYLE=path
-            echo "🛣️ Using path-style addressing"
-          fi
-          
-          aws s3 cp "$TEMP_ARCHIVE" "$S3_PATH" $S3_ARGS \
-            --metadata "github-repo=${REPO_NAME},github-run-id=${RUN_ID},github-actor=${{ github.actor }},github-event=${{ github.event_name }}"
+          # Upload with metadata
+          mc cp "$TEMP_ARCHIVE" "$MC_PATH" \
+            --attr "github-repo=${REPO_NAME};github-run-id=${RUN_ID};github-actor=${{ github.actor }};github-event=${{ github.event_name }}"
           
           if [ $? -eq 0 ]; then
             echo "✅ Successfully uploaded to S3"
-            echo "📍 S3 Location: ${S3_PATH}"
+            echo "📍 S3 Location: ${MC_PATH}"
             
             # Output S3 location for use in other steps
-            echo "s3-location=${S3_PATH}" >> $GITHUB_OUTPUT
+            echo "s3-location=${MC_PATH}" >> $GITHUB_OUTPUT
             echo "archive-name=${ARCHIVE_NAME}" >> $GITHUB_OUTPUT
             
             # Clean up temporary file

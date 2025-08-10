@@ -32,9 +32,7 @@ jobs:
         uses: ./
         with:
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          s3-endpoint-url: ${{ secrets.S3_ENDPOINT_URL }}
-          s3-force-path-style: ${{ secrets.S3_FORCE_PATH_STYLE }}
+          mc-endpoint-url: ${{ secrets.MC_ENDPOINT_URL }}
+          mc-access-key: ${{ secrets.MC_ACCESS_KEY }}
+          mc-secret-key: ${{ secrets.MC_SECRET_KEY }}
           s3-bucket: ${{ secrets.S3_BUCKET }}
